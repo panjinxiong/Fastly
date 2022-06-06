@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <script src="../dist/Fastly.js"></script>
+</head>
+
+<body>
+  <!-- 导入包 -->
+  <script>
+    var LoadQueue = Fastly.resource.LoadQueue;
+  </script>
+
+  <!-- 加载资源 -->
+  <script>
+    var Queue = new LoadQueue([
+      {
+        id: "img",
+        type: "img",
+        noCache: true,
+        src: "resource/fish.png",
+      },
+      {
+        id: "js",
+        type: "js",
+        src: "resource/test.js",
+      },
+      {
+        id: "img-error",
+        type: "img",
+        noCache: true,
+        src: "resource/fish1.png",
+      },
+      {
+        id: "js-error",
+        type: "js",
+        src: "resource/test1.js",
+      }
+    ]);
+
+    Queue.add([
+      {
+        id: "css",
+        type: "css",
+        src: "resource/test.css",
+        loader: function (data, next) {
+          var link = document.createElement("link");
+          link.type = "text/css";
+          link.rel = "stylesheet";
+          if (data.id) link.id = data.id;
+          link.addEventListener(
+            "load",
+            function (e) {
+              next("load", e.target);
+            },
+            false
+          );
+          link.addEventListener(
+            "error",
+            function (e) {
+              next("error", e);
+            },
+            false
+          );
+          link.href = data.src;
+          document.getElementsByTagName("head")[0].appendChild(link);
+        },
+      },
+    ]);
+
+    Queue
+      .on("load", function (e) {
+        console.log("load:", e.source, e.source[0].src);
+      })
+      .on("error", function (e) {
+        console.log("error:", e.source, e.source[0].src);
+      })
+      .on("complete", function () {
+        console.log("complete", Queue.loaded, Queue.total);
+      });
+
+    Queue.start();
+  </script>
+</body>
+
+</html>

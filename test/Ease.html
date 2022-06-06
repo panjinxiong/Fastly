@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <script src="../dist/Fastly.js"></script>
+</head>
+
+<body>
+  <!-- 导入包 -->
+  <script>
+    var Graphics = Fastly.display.Graphics;
+    var Text = Fastly.display.Text;
+    var Stage = Fastly.display.Stage;
+    var Ticker = Fastly.system.Ticker;
+    var Ease = Fastly.tween.Ease;
+  </script>
+
+  <!-- 创建舞台 -->
+  <script>
+    var stageWidth = window.innerWidth || document.documentElement.clientWidth;
+    var stageHeight = window.innerHeight || document.documentElement.clientHeight;
+
+    var stage = new Stage({ width: stageWidth, height: stageHeight });
+    document.body.appendChild(stage.element);
+
+    var ticker = new Ticker(20);
+    ticker.addTick(stage);
+    ticker.start();
+  </script>
+
+  <!-- Ease -->
+  <script>
+    function Draw(fn, name) {
+      var size = 80,
+        ceilSize = 130,
+        margin = (ceilSize - size) * 0.5,
+        col = (stageWidth / ceilSize) >> 0;
+
+      // 图形
+      var g = new Graphics({
+        width: ceilSize,
+        height: ceilSize,
+        x: 5 + (Num % col) * ceilSize,
+        y: 5 + ((Num / col) >> 0) * ceilSize,
+      });
+      g.beginPath();
+      g.lineStyle(1, "#69f");
+      var delta = 0.02;
+      g.moveTo(margin, margin + (1 - fn(0)) * size);
+      for (var i = delta; i <= 1; i += delta) g.lineTo(margin + i * size, margin + (1 - fn(i)) * size);
+      g.drawRect(0, 0, ceilSize, ceilSize);
+      g.endFill();
+      g.beginPath();
+      g.lineStyle(0.5, "#96f");
+      g.moveTo(margin, margin);
+      g.lineTo(margin, margin + size);
+      g.lineTo(margin + size, margin + size);
+      g.endFill();
+
+      // 文字
+      var text = new Text({
+        width: ceilSize,
+        height: 20,
+        font: "12px arial",
+        textAlign: "center",
+        x: g.x,
+        y: g.y + size + margin + 10,
+        text: name,
+      });
+
+      Num++;
+
+      stage.layers.addChild(g);
+      stage.layers.addChild(text);
+    }
+
+    var Num = 0,
+      EaseName = ["easeIn", "easeOut", "easeInOut"],
+      EaseFunction = {
+        "linear": Ease.linear,
+        "quad": [Ease.quad.easeIn, Ease.quad.easeOut, Ease.quad.easeInOut],
+        "cubic": [Ease.cubic.easeIn, Ease.cubic.easeOut, Ease.cubic.easeInOut],
+        "quart": [Ease.quart.easeIn, Ease.quart.easeOut, Ease.quart.easeInOut],
+        "quint": [Ease.quint.easeIn, Ease.quint.easeOut, Ease.quint.easeInOut],
+        "sine": [Ease.sine.easeIn, Ease.sine.easeOut, Ease.sine.easeInOut],
+        "expo": [Ease.expo.easeIn, Ease.expo.easeOut, Ease.expo.easeInOut],
+        "circ": [Ease.circ.easeIn, Ease.circ.easeOut, Ease.circ.easeInOut],
+        "elastic": [Ease.elastic.easeIn, Ease.elastic.easeOut, Ease.elastic.easeInOut],
+        "bounce": [Ease.bounce.easeIn, Ease.bounce.easeOut, Ease.bounce.easeInOut],
+        "back": [Ease.back.easeIn, Ease.back.easeOut, Ease.back.easeInOut],
+      };
+    for (var e in EaseFunction) {
+      if (EaseFunction[e] instanceof Array) {
+        for (var i in EaseFunction[e]) {
+          Draw(EaseFunction[e][i], "Ease" + "." + e + "." + EaseName[i]);
+        }
+      } else {
+        Draw(EaseFunction[e], "Ease" + "." + e);
+      }
+    }
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <script src="../dist/Fastly.js"></script>
+</head>
+
+<body>
+  <!-- 导入包 -->
+  <script>
+    var Camera = Fastly.display.Camera;
+    var LoadQueue = Fastly.resource.LoadQueue;
+    var Ticker = Fastly.system.Ticker;
+    var Container = Fastly.display.Container;
+    var Node = Fastly.display.Node;
+    var Bitmap = Fastly.display.Bitmap;
+    var Stage = Fastly.display.Stage;
+  </script>
+
+  <!-- 创建舞台 -->
+  <script>
+    var stageWidth = 800,
+      stageHeight = 600,
+      mapWidth = 1440,
+      mapHeight = 900;
+
+    var stage = new Stage({ width: stageWidth, height: stageHeight });
+    stage.pointerDOM.enable();
+    document.body.appendChild(stage.element);
+
+    var ticker = new Ticker(60);
+    ticker.addTick(stage);
+    ticker.start();
+  </script>
+
+  <!-- 摄像机 -->
+  <script>
+    var Queue = new LoadQueue([
+      {
+        id: "map",
+        type: "img",
+        noCache: true,
+        src: "resource/map.jpg",
+      },
+      {
+        id: "fish",
+        type: "img",
+        noCache: true,
+        src: "resource/fish.png",
+      },
+    ]);
+    Queue.on("complete", function () {
+      // 鱼
+      var fish = new Bitmap({
+        image: Queue.getSource("fish").content,
+        rect: [0, 0, 174, 126],
+        x: 500,
+        y: 200,
+        height: 126,
+        width: 174,
+        anchor: [87, 63],
+        onRenderStart: function () {
+          this.x += this.speed;
+          if (this.x > mapWidth || this.x < 0) {
+            this.speed *= -1;
+            this.scale[0] *= -1;
+          }
+          return true;
+        },
+      });
+      fish.speed = 5;
+      fish.on("mousemove", function (e) { console.log("mousemove fish;") });
+
+      // 摄像机
+      var camera = new Camera({
+        width: stageWidth,
+        height: stageHeight,
+        bound: [0, 0, mapWidth, mapHeight],
+        // deadzone : [stageWidth / 2, stageHeight / 2, 0, 0] // 中心点
+        deadzone: [250, 150, stageWidth - 250 * 2, stageHeight - 150 * 2], // 矩形
+      });
+      camera.follow(fish);
+      setTimeout(function () {
+        camera.zoom = 3;
+      }, 3000);
+
+      // 地图
+      var map = new Container();
+      map
+        .addChild(new Bitmap({ image: Queue.getSource("map").content }))
+        .addChild(fish);
+
+      stage.layers
+        .addChild(map)
+        .addChild(
+          new Node({
+            x: camera.deadzone[0],
+            y: camera.deadzone[1],
+            width: camera.deadzone[2],
+            height: camera.deadzone[3],
+            background: "rgba(255, 0, 0, .3)",
+          })
+        );
+
+      ticker.addTick(camera);
+      ticker.addTick({
+        tick: function () {
+          // 移动世界
+          map.x = -camera.x;
+          map.y = -camera.y;
+          map.scale[1] = map.scale[0] = camera.zoom;
+        },
+      });
+    }).start();
+  </script>
+</body>
+
+</html>

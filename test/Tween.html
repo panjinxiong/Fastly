@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <script src="../dist/Fastly.js"></script>
+</head>
+
+<body>
+  <div id="game-container" style="height: 300px; width: 300px"></div>
+
+  <!-- 导入包 -->
+  <script>
+    var Node = Fastly.display.Node;
+    var Stage = Fastly.display.Stage;
+    var Ticker = Fastly.system.Ticker;
+    var Ease = Fastly.tween.Ease;
+    var Tween = Fastly.tween.Tween;
+  </script>
+
+  <!-- 创建舞台 -->
+  <script>
+    var stage = new Stage({ width: 320, height: 480 });
+    document.body.appendChild(stage.element);
+
+    var ticker = new Ticker(60);
+    ticker.addTick(Tween);
+    ticker.addTick(stage);
+    ticker.start();
+  </script>
+
+  <!-- Tween1 -->
+  <style type="text/css">
+    .box1 {
+      position: relative;
+      display: inline-block;
+      width: 5px;
+      height: 5px;
+      border: 1px solid #fff;
+      background-color: blue;
+    }
+  </style>
+  <script>
+    var Boxes = [],
+      Total = 200;
+
+    for (var i = 0; i < Total; i++) {
+      var box = document.createElement("div");
+      box.id = "box" + i;
+      box.className = "box1";
+      document.getElementById("game-container").appendChild(box);
+      Boxes[i] = box;
+    }
+    Boxes.reverse();
+
+    for (var i = 0; i < Total; i++) {
+      Tween.fromto({
+        target: Boxes[i],
+        toProps: { y: 100 },
+        delay: 20 * i,
+        duration: 2000,
+        ease: Ease.elastic.easeIn,
+        onUpdate: function (ratio) {
+          this.target.style.webkitTransform = "translate(0," + this.target.y + "px)";
+        },
+      });
+    }
+  </script>
+
+  <!-- Tween2 -->
+  <script>
+    var Node1 = new Node({
+      x: 0,
+      y: 0,
+      width: 10,
+      height: 10,
+      background: "#000",
+    });
+
+    Tween.fromto({
+      target: Node1,
+      toProps: { x: 50, y: 50 },
+      // reverse: true,
+      // loop: true,
+      duration: 500,
+      onDestroyed: function () {
+        console.dir("动画结束", this);
+      },
+    }).link(
+      Tween.fromto({
+        target: Node1,
+        fromProps: { x: 40, y: 150 },
+        toProps: { x: 250, y: 265 },
+        duration: 500,
+        delay: 1300,
+        onComplete: function () {
+          Tween.fromto({ target: Node1, toProps: { x: 50, y: 150 }, duration: 500 }).seek(300);
+        },
+      }),
+      true
+    );
+
+    stage.layers.addChild(Node1);
+  </script>
+</body>
+
+</html>

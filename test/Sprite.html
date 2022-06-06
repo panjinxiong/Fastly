@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <script src="../dist/Fastly.js"></script>
+</head>
+
+<body>
+  <!-- 导入包 -->
+  <script>
+    var TextureAtlas = Fastly.display.TextureAtlas;
+    var Sprite = Fastly.display.Sprite;
+    var Stage = Fastly.display.Stage;
+    var LoadQueue = Fastly.resource.LoadQueue;
+    var Ticker = Fastly.system.Ticker;
+  </script>
+
+  <!-- 创建舞台 -->
+  <script>
+    var stage = new Stage({ width: 800, height: 600 });
+    document.body.appendChild(stage.element);
+
+    var ticker = new Ticker(60);
+    ticker.addTick(stage);
+    ticker.start();
+  </script>
+
+  <!-- 精灵 -->
+  <script>
+    var Queue = new LoadQueue([
+      {
+        id: "fish",
+        type: "img",
+        noCache: true,
+        src: "resource/fish.png",
+      },
+    ]);
+    Queue.on("complete", function () {
+      var atlas = new TextureAtlas({
+        image: Queue.getSource("fish").content,
+        width: 174,
+        height: 1512,
+        // frames: [
+        //   [0, 0, 174, 126],
+        //   [0, 126, 174, 126],
+        //   [0, 252, 174, 126],
+        //   [0, 378, 174, 126],
+        //   [0, 504, 174, 126],
+        //   [0, 630, 174, 126],
+        //   [0, 756, 174, 126],
+        //   [0, 882, 174, 126]
+        // ],
+        frames: {
+          frameWidth: 174,
+          frameHeight: 126,
+          numFrames: 12,
+        },
+        sprites: {
+          fish1: 1,
+          fish2: [
+            0,
+            1,
+            {
+              framesIndex: 2,
+              name: "fish2-2",
+              duration: 15,
+              stop: false,
+              next: "fish2-5",
+            },
+            3,
+            4,
+            5,
+            6,
+            {
+              framesIndex: 7,
+              name: "fish2-5",
+            },
+          ],
+          fish3: {
+            from: 0,
+            to: 7,
+            2: {
+              next: 0,
+            },
+          },
+        },
+      });
+
+      var fish = new Sprite({
+        frames: atlas.getSprite("fish2"),
+        x: 0,
+        y: 100,
+        paused: false,
+        loop: true,
+        // timeBased: true,
+        interval: 6,
+        // onEnterFrame:function(){
+        //   console.log(this.currentFrame);
+        // }
+      });
+
+      // fish.setFrameCallback(1, function () {
+      //   console.log(this.currentFrame);
+      // });
+
+      console.log(fish.getFrameIndex(0));
+      console.log(fish.getFrameIndex("fish2-2"));
+
+      stage.layers.addChild(fish);
+    }).start();
+  </script>
+</body>
+
+</html>

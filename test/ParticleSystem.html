@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <script src="../dist/Fastly.js"></script>
+</head>
+
+<body>
+  <!-- 导入包 -->
+  <script>
+    var particleSystem = Fastly.display.ParticleSystem;
+    var Stage = Fastly.display.Stage;
+    var LoadQueue = Fastly.resource.LoadQueue;
+    var Ticker = Fastly.system.Ticker;
+  </script>
+
+  <!-- 创建舞台 -->
+  <script>
+    var stage = new Stage({ width: 800, height: 600 });
+    stage.layers.background = "#000";
+    document.body.appendChild(stage.element);
+
+    var ticker = new Ticker(60);
+    ticker.addTick(stage);
+    ticker.start();
+  </script>
+
+  <!-- 粒子 -->
+  <script>
+    var Queue = new LoadQueue([
+      {
+        id: "fire",
+        type: "img",
+        noCache: true,
+        src: "resource/fire.png",
+      },
+    ]);
+    Queue.on("complete", function () {
+      window.pSystem = new particleSystem({
+        x: 0,
+        y: 0,
+        emitTime: 1,
+        emitNum: 30,
+        totalTime: 5, //5s之后就停止发射器
+        particle: {
+          scaleFix: 0.5,
+          vxVar: 300, vyVar: 300,
+          axVar: 200, ayVar: 200,
+          rotateVar: 360, vRotateVar: 4,
+          life: 22,
+          vAlpha: -0.01,
+          image: Queue.getSource("fire").content,
+          anchor: [0.5, 0.5],
+          frames: [[75, 236, 7, 11], [119, 223, 7, 17], [90, 223, 22, 17], [51, 202, 17, 46], [94, 59, 34, 59], [60, 160, 34, 42], [30, 99, 30, 99], [7, 240, 7, 11], [119, 206, 7, 17], [90, 206, 22, 17], [111, 160, 17, 46], [60, 59, 34, 59], [94, 118, 34, 42], [30, 0, 30, 99], [68, 236, 7, 11], [112, 223, 7, 17], [68, 219, 22, 17], [94, 160, 17, 46], [94, 0, 34, 59], [60, 118, 34, 42], [0, 99, 30, 99], [0, 240, 7, 11], [112, 206, 7, 17], [68, 202, 22, 17], [34, 198, 17, 46], [60, 0, 34, 59], [0, 198, 34, 42], [0, 0, 30, 99]]
+        },
+      });
+
+      stage.layers.addChild(pSystem);
+
+      pSystem.start();
+
+      ticker.addTick({
+        tick: function () {
+          pSystem.emitterX = Math.random() * 800;
+          pSystem.emitterY = Math.random() * 600;
+        },
+      });
+    }).start();
+  </script>
+</body>
+
+</html>

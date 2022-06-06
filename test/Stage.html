@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="../dist/Fastly.js"></script>
+</head>
+
+<body>
+  <!-- 导入包 -->
+  <script>
+    var Node = Fastly.display.Node;
+    var Container = Fastly.display.Container;
+    var Stage = Fastly.display.Stage;
+    var Vector = Fastly.geom.Vector;
+    var Ticker = Fastly.system.Ticker;
+  </script>
+
+  <!-- 创建舞台 -->
+  <script>
+    var stage = new Stage();
+    stage.pointerDOM.enable();
+    stage.keyboardDOM.enable();
+    document.body.appendChild(stage.element);
+
+    var ticker = new Ticker(60),
+      intervalNum = 0;
+    ticker.addTick(stage);
+    ticker.nextTick(function (dt) {
+      console.log("ticker.nextTick--->" + dt.deltaTime);
+    });
+    ticker.timeoutTick(function (dt) {
+      console.log("ticker.timeoutTick--->" + dt.deltaTime);
+    }, 1000);
+    var intervalTickObj = ticker.interval(function (dt) {
+      intervalNum++;
+      if (intervalNum === 3) ticker.removeTick(intervalTickObj);
+      else console.log("ticker.interval--->" + dt.deltaTime);
+    }, 500);
+    ticker.start();
+  </script>
+
+  <!-- 舞台功能 -->
+  <script>
+    var PlayerMove = new Vector(),
+      Player = new Container({ x: 50, y: 50, width: 20, height: 20, background: "#000", rotate: -30, zIndex: 3 }),
+      Node1 = new Node({ x: 10, y: 10, width: 20, height: 20, background: "#000", rotate: 30, zIndex: 5 });
+
+    Player.addChild(Node1);
+    stage.layers.addChild(Player);
+    stage.keyboardDOM.add(Player);
+    ticker.addTick({
+      tick: function () {
+        Player.x += PlayerMove.x;
+        Player.y += PlayerMove.y;
+      },
+    });
+
+    // Player.on("keydown", function (e) {e.a=1; console.log(e) });
+    // Player.on("keydown a", function (e) { console.log(e) });
+    // Player.on("keyup", function (e) { console.log(e.keys); console.log(e.keyDownKeys); });
+    Player.on("keydown", function (e) {
+      if (e.isRepeat) return;
+      else if (e.key == "w") PlayerMove.y = -5;
+      else if (e.key == "s") PlayerMove.y = 5;
+      else if (e.key == "a") PlayerMove.x = -5;
+      else if (e.key == "d") PlayerMove.x = 5;
+    });
+    Player.on("keyup", function (e) {
+      if ((!e.isKeyDownKeys("s") && e.key == "w") || (!e.isKeyDownKeys("w") && e.key == "s")) PlayerMove.y = 0;
+      else if ((!e.isKeyDownKeys("d") && e.key == "a") || (!e.isKeyDownKeys("a") && e.key == "d")) PlayerMove.x = 0;
+    });
+    Player.on("keydown Control+ ", function (e) { Player.rotate += 5; });
+
+    Player.on("mousedown", function (e) { e.target.background = "#4e72b8"; });
+    Player.on("mousemove", function (e) { e.target.background = "#b7ba6b"; });
+    // Player.on("mouseover", function (e) { e.target.background = "#faa755"; });
+    Player.on("mouseup", function (e) { e.target.background = "#ca8687"; });
+    Player.on("mouseout", function (e) { e.target.background = "#000"; });
+    Node1.on("mousedown", function (e) { e.target.background = "#4e72b8"; });
+    Node1.on("mousemove", function (e) {
+      e.target.background = "#b7ba6b";
+      // e.stopPropagation();
+    });
+    // Node1.on("mouseover", function (e) { e.target.background = "#faa755"; });
+    Node1.on("mouseup", function (e) { e.target.background = "#ca8687"; });
+    Node1.on("mouseout", function (e) { e.target.background = "#000"; });
+
+    Player.on("touchstart", function (e) { e.target.background = "#4e72b8"; });
+    Player.on("touchmove", function (e) { e.target.background = "#b7ba6b"; });
+    // Player.on("touchover", function (e) { e.target.background = "#faa755"; });
+    Player.on("touchend", function (e) { e.target.background = "#ca8687"; });
+    Player.on("touchout", function (e) { e.target.background = "#000"; });
+    Node1.on("touchstart", function (e) { e.target.background = "#4e72b8"; });
+    // Node1.on("touchmove", function (e) { e.target.background = "#b7ba6b"; });
+    Node1.on("touchover", function (e) { e.target.background = "#faa755"; });
+    Node1.on("touchend", function (e) { e.target.background = "#ca8687"; });
+    Node1.on("touchout", function (e) { e.target.background = "#000"; });
+  </script>
+
+  <!-- 容器属性测试 -->
+  <script>
+    var ContainerTest = new Container({ x: 150, y: 150 });
+    var Container1 = new Container({ x: 0, y: 0, width: 20, height: 20, background: "#f00" });
+    var Container2 = new Container({ x: 30, y: 0, width: 20, height: 20, background: "#0f0" });
+    var Container3 = new Container({ x: 60, y: 0, width: 20, height: 20, background: "#00f" });
+    var Container4 = new Container({ x: 10, y: 10, width: 20, height: 20, background: "#ff0" });
+    var Container5 = new Container({ x: 10, y: 10, width: 20, height: 20, background: "#000" });
+    stage.layers.addChild(ContainerTest);
+    ContainerTest.addChild(Container1);
+    ContainerTest.addChild(Container2);
+    ContainerTest.addChild(Container3);
+    Container3.addChild(Container4);
+    // Container4.addChild(Container5);
+    // console.log(ContainerTest.children);
+  </script>
+</body>
+
+</html>

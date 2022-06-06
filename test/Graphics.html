@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <script src="../dist/Fastly.js"></script>
+</head>
+
+<body>
+  <!-- 导入包 -->
+  <script>
+    var Graphics = Fastly.display.Graphics;
+    var Stage = Fastly.display.Stage;
+    var Ticker = Fastly.system.Ticker;
+  </script>
+
+  <!-- 创建舞台 -->
+  <script>
+    var stage = new Stage({ width: 800, height: 600 });
+    document.body.appendChild(stage.element);
+
+    var ticker = new Ticker(20);
+    ticker.addTick(stage);
+    ticker.start();
+  </script>
+
+  <!-- 创建绘图、遮罩模板 -->
+  <script>
+    var g1 = new Graphics({ x: 40, y: 20, width: 100, height: 100 });
+    g1.lineStyle(1, "#009898").beginFill("#0ff").drawRect(0.5, 0.5, 99, 99).endFill();
+    // 遮罩
+    var mask = new Graphics({ x: 0, y: 0, width: 50, height: 50 });
+    mask.lineStyle(1, "#009898").beginFill("#fff").drawRect(35, 15, 20, 20).endFill();
+    g1.mask = mask;
+    stage.layers.addChild(g1);
+
+    var g2 = new Graphics({ x: 180, y: 20, width: 100, height: 100 });
+    g2.lineStyle(10, "#009898").beginFill("#0ff").drawRoundRect(5, 5, 90, 90, 20).endFill();
+    stage.layers.addChild(g2);
+
+    var g3 = new Graphics({ x: 40, y: 150, width: 100, height: 100 });
+    g3.lineStyle(2, "#009898").beginRadialGradientFill(50, 50, 0, 50, 50, 50, ["#fff", "#4ffcfc"], [0, 1]).drawCircle(2, 2, 48).endFill();
+    stage.layers.addChild(g3);
+
+    var g4 = window.g4 = new Graphics({ x: 180, y: 170, width: 100, height: 60 });
+    g4.lineStyle(5, "#009898").beginFill("#0ff").drawEllipse(5, 5, 90, 50).endFill();
+    stage.layers.addChild(g4);
+
+    var g5 = new Graphics({ x: 55, y: 290, width: 70, height: 90 });
+    g5.lineStyle(2, "#009898").beginLinearGradientFill(0, 0, 60, 0, ["#fff", "#4ffcfc"], [0.3, 1]).drawRect(2, 2, 66, 86).endFill();
+    stage.layers.addChild(g5);
+
+    var svgPath = "M53 84 C53 84 51 84 51 84 C51 89 53 94 56 94 C64 94 71 89 71 84 C71 72 64 64 56 64 C42 64 31 72 31 84 C31 100 42 114 56 114 C75 114 91 100 91 84 C91 61 75 44 56 44 C31 44 11 61 11 84 C11 111 31 134 56 134 C86 134 111 111 111 84 C111 50 86 24 56 24";
+    var g6 = new Graphics({ x: 170, y: 250, width: 120, height: 150 });
+    g6.lineStyle(4, "#02d1d1").drawSVGPath(svgPath).closePath().endFill();
+    stage.layers.addChild(g6);
+
+    var g7 = new Graphics({ x: 320, y: 20, width: 90, height: 90 });
+    g7.setLineDash([5, 4]).lineStyle(2, "#009898").drawRect(4, 4, 80, 80).endFill().beginPath().setLineDash([]).lineStyle(2, "#f96").drawRect(14, 14, 60, 60).endFill();
+    stage.layers.addChild(g7);
+  </script>
+</body>
+
+</html>

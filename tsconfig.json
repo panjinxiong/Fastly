@@ -1,0 +1,27 @@
+{
+  "compilerOptions": {
+    "baseUrl": "./",
+    "rootDir": "./",
+    "module": "es2015",
+    "target": "es2015",
+    "lib": ["es2015", "dom"],
+    "paths": {
+      "@/*": ["src/*"],
+      "@g/*": ["src/@global/*"],
+      "@quickly": ["src/@quickly/index.ts"],
+      "@package": ["./package.json"]
+    },
+    "declaration": true,
+    "declarationDir": "types",
+    "emitDeclarationOnly": true,
+    "resolveJsonModule": true,
+    "moduleResolution": "Node",
+    "removeComments": true,
+    "strict": true,
+    "preserveConstEnums": true,
+    "experimentalDecorators": true,
+    "pretty": true,
+    "sourceMap": true
+  },
+  "include": ["./src/**/*.ts"]
+}

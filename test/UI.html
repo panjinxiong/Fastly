@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <script src="../dist/Fastly.js"></script>
+</head>
+
+<body>
+  <!-- 导入包 -->
+  <script>
+    var Bitmap = Fastly.display.Bitmap;
+    var BitmapText = Fastly.display.BitmapText;
+    var Button = Fastly.display.Button;
+    var Text = Fastly.display.Text;
+    var Stage = Fastly.display.Stage;
+    var LoadQueue = Fastly.resource.LoadQueue;
+    var Ticker = Fastly.system.Ticker;
+    var Browser = Fastly.util.Browser;
+    var PerfMon = Fastly.util.PerfMon;
+  </script>
+
+  <!-- 创建舞台 -->
+  <script>
+    var stage = new Stage({ width: 800, height: 600 });
+    stage.pointerDOM.enable();
+    document.body.appendChild(stage.element);
+
+    var ticker = new Ticker(60);
+    ticker.start();
+  </script>
+
+  <!-- Util -->
+  <script>
+    // PerfMon
+    var Stats = new PerfMon.stats({
+      onFPS: function (value) { console.log("fps：", value); },
+      // onMS: function (value) { console.log("ms：", value); }
+    });
+
+    ticker.addTick({ tick: function () { Stats.begin(); } });
+    ticker.addTick(stage);
+    ticker.addTick({ tick: function () { Stats.end(); } });
+
+    // Browser
+    Browser.elementsLog(["Browser.elementsLog1", "Browser.elementsLog2"]);
+
+    Browser.consoleGroup(
+      [
+        [
+          "Browser.consoleGroup1",
+          { "background": "#1475b2", "text-align": "left", "color": "#fff", "padding": "2px 7px", "border-radius": "3px" },
+        ],
+      ],
+      function () {
+        console.log("Browser.consoleGroup2");
+      }
+    );
+
+    Browser.consoleLog([
+      [
+        "Browser.consoleLog1",
+        { "background": "#1475b2", "text-align": "center", "color": "#fff", "padding": "2px 7px", "border-top-left-radius": "3px", "border-bottom-left-radius": "3px" },
+      ],
+      [
+        "Browser.consoleLog2",
+        { "background": "#606060", "text-align": "left", "color": "#fff", "padding": "2px 7px", "border-top-right-radius": "3px", "border-bottom-right-radius": "3px" },
+      ],
+    ]);
+  </script>
+
+  <!-- UI组件 -->
+  <script>
+    var Queue = new LoadQueue([
+      {
+        id: "fish",
+        type: "img",
+        noCache: true,
+        src: "resource/fish.png",
+      },
+      {
+        id: "num",
+        type: "img",
+        noCache: true,
+        src: "resource/num.png",
+      },
+      {
+        id: "btn",
+        type: "img",
+        noCache: true,
+        src: "resource/btn.png",
+      },
+    ]);
+    Queue.on("complete", function () {
+      // Bitmap
+      var bmp1 = new Bitmap({
+        x: 0,
+        y: 0,
+        background: "#000",
+        image: Queue.getSource("fish").content,
+        rect: [0, 0, 174, 126],
+        offset: [175, 150],
+      });
+      setTimeout(function () { bmp1.setImage({ image: Queue.getSource("num").content, }); }, 3000);
+      stage.layers.addChild(bmp1);
+
+      // BitmapText
+      var bmp2 = new BitmapText({
+        x: 500,
+        y: 0,
+        text: "123456789",
+        glyphs: BitmapText.createGlyphs("0123456789 ", Queue.getSource("num").content),
+        textAlign: "center",
+        letterSpacing: 10,
+      });
+      setTimeout(function () { bmp2.setText("987654312"); }, 1000);
+      console.log(bmp2.hasGlyphs("96"));
+      stage.layers.addChild(bmp2);
+
+      // Text
+      var text = new Text({
+        x: 0,
+        y: 300,
+        width: 250,
+        height: 100,
+        font: "14px HammersmithOne",
+        text: "Hello World! ",
+        lineSpacing: 0
+      });
+      setTimeout(function () { text.setFont("16px Microsoft Yahei"); }, 3000);
+      stage.layers.addChild(text);
+
+      // Button
+      var btn = new Button({
+        x: 200,
+        y: 300,
+        width: 64,
+        height: 64,
+        id: "blueBtn",
+        image: Queue.getSource("btn").content,
+        upState: { rect: [0, 0, 64, 64] },
+        overState: { rect: [64, 0, 64, 64] },
+        downState: { rect: [128, 0, 64, 64] },
+        disabledState: { rect: [192, 0, 64, 64] },
+      });
+      setTimeout(function () { btn.setState(Button.DISABLED); }, 4000);
+      stage.layers.addChild(btn);
+    }).start();
+  </script>
+</body>
+
+</html>

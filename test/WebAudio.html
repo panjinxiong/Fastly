@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <script src="../dist/Fastly.js"></script>
+</head>
+
+<body>
+  <!-- 导入包 -->
+  <script>
+    var WebAudio = Fastly.media.WebAudio;
+    var LoadQueue = Fastly.resource.LoadQueue;
+  </script>
+
+  <!-- 播放音乐 -->
+  <script>
+    var Queue = new LoadQueue([
+      {
+        id: "audio",
+        type: "audio",
+        src: "resource/bomb.mp3",
+      },
+    ]);
+    Queue.on("complete", function () {
+      new WebAudio({
+        data: Queue.getSource("audio").content,
+        autoPlay: true,
+        loop: true,
+      }).load();
+    }).start();
+  </script>
+</body>
+
+</html>
